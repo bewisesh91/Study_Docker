@@ -5,7 +5,10 @@ app = Flask(__name__)
 import requests
 from bs4 import BeautifulSoup
 
-articles = []
+from pymongo import MongoClient
+
+client = MongoClient('mongo', 27017)
+db = client.dbdocker
 
 
 ## HTML을 주는 부분
@@ -16,6 +19,7 @@ def home():
 
 @app.route('/memo', methods=['GET'])
 def listing():
+    articles = list(db.articles.find({}, {'_id': False}))
     return jsonify({'all_articles': articles})
 
 
@@ -43,7 +47,7 @@ def saving():
         'comment': comment_receive
     }
 
-    articles.append(doc)
+    db.articles.insert_one(doc)
 
     return jsonify({'msg': '저장이 완료되었습니다!'})
 
